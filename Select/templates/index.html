@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hacktoberfest</title>
+    <link rel="icon" type="image/png" href="{% static 'images/icons/hacktoberfest.png' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/util.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}" />
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}"
+    />
+	
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  </head>
+  <body>
+  
+  
+    <div class="container-bg">
+      
+      <div class="h5 w-50 col-12" style="text-align: center;">
+        <h3>Problem Statements</h3>
+        {%if team_num == 88888%}
+          <a class="btn btn-customm p-1 col-1 mx-1" href="{% url 'addPS' %}">Add PS</a>
+          <a class="btn btn-customm p-1 col-1 mx-1" href="{% url 'reset' %}">Reset</a>
+          <a class="btn btn-customm p-1 col-1 mx-1" href="{% url 'results' %}">Results</a> 
+          <a class="btn btn-customm p-1 col-2 mx-1" href="{% url 'team_credentials' %}">Team Credentials</a>
+          {%endif%} 
+          <a class="btn btn-customm p-1 col-1 mx-1" href="{% url 'logout' %}">Logout</a>           
+      </div>
+      
+    {% if messages %}
+
+    {% for message in messages %}
+    <div class="alert alert-success" role="alert" style="width: 100%;">
+        {{ message }}
+    </div>
+    {% endfor %}
+
+    {% endif %}
+      
+      {%for prob in probs%}
+      <div style="margin: 1em; width: 100%;" class="card">        
+        <div class="row" style="padding: 20px;">
+          <div class="h5 w-50 col-12">
+            {{prob.probNo}}. {{prob.psname}}
+            
+            {%if team_num == 88888%}
+            <a class="btn btn-custom p-1 col-1 mx-1" style="float: right;" href="{% url 'updatePS' prob.id %}">Update</a>
+            <a class="btn btn-custom p-1 col-1 mx-1" style="float: right;" href="{% url 'deletePS' prob.id %}">Delete</a>
+        
+          {%else %}
+          <div style="float: right;" class="btn btn-dumb p-1 col-1 mx-1" id="cnt-{{prob.num}}" >{{prob.count}}/2</div>
+          {%if prob.count == 2%}
+          <div style="float: right;" class="btn btn-dumb p-1 col-2 mx-1" disabled style="cursor:default;background-color:gray;" id="click-{{prob.num}}">Not available!</div>
+          {%else %}
+              <div style="float: right;" class="btn btn-custom p-1 col-2 mx-1" onclick="getConf({{prob.probNo}})" id="click-{{prob.num}}" >Select</div>
+          {%endif%}
+          
+          {%endif%}
+          </div>
+                
+          <div style="padding: 10px;">
+            <p>{{prob.description}}
+            </p>
+          </div>
+      
+        </div>
+        
+        	
+        
+      </div>
+      {%endfor%}
+      
+      
+    </div>
+	<script>
+	function getConf(ps){
+	if (confirm('Are you sure you want to select problem number '+ps+' ?')){
+	window.location.href='save/'+ps;
+	}
+	}
+	function worker(){
+	$.ajax({
+    url: '{% url "data"%}', 
+	type: 'GET',
+    success: function(data,textStatus,request) {
+	  for(i=0;i<data.length;i++){
+		document.getElementById("cnt-"+data[i]['num']).innerHTML=data[i]['count'] +"/2";
+		if( data[i]['count']==2){
+		document.getElementById("click-"+data[i]['num']).innerHTML="Not available!";
+		document.getElementById("click-"+data[i]['num']).style.cursor="default";
+		document.getElementById("click-"+data[i]['num']).style.backgroundColor="gray";
+		document.getElementById("click-"+data[i]['num']).disabled=true;
+		document.getElementById("click-"+data[i]['num']).onclick="";
+		}
+		else{
+		document.getElementById("click-"+data[i]['num']).innerHTML="Select";
+		document.getElementById("click-"+data[i]['num']).style.cursor="pointer";
+		document.getElementById("click-"+data[i]['num']).className="btn btn-custom p-1 col-2 mx-1";
+		document.getElementById("click-"+data[i]['num']).disabled=false;
+		}
+	  }
+    },
+    complete: function() {
+      // Schedule the next request when the current one's complete
+      setTimeout(worker, 1000);
+    }
+  });
+	}
+	worker();
+	</script>
+
+    
+  </body>
+</html>

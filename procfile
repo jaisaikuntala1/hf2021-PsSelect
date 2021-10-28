@@ -1,0 +1,1 @@
+web: gunicorn PsSelect.wsgi --log-file -
