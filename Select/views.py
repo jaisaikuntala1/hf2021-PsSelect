@@ -165,7 +165,7 @@ def reset(request):
 	ProblemStatement.objects.all().update(count=0)
 	Taken.objects.all().delete()
 	Team.objects.exclude(teamNo=88888).delete()
-	for i in range(1,51):
+	for i in range(1,61):
 		ran = ''.join(random.choices(string.ascii_letters + string.digits, k = 10))
 		team=Team(teamNo=i,password=str(ran))
 		team.save()
